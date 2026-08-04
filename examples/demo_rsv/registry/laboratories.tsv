@@ -1,0 +1,7 @@
+lab_code	lab_code_normalized	autonomous_community_code	autonomous_community	institution	originating_lab	submitter_lab_code	submitter_lab_name	city	laboratory_comments
+CHUS	CHUS	GA	Galicia	CHUS	Complejo Hospitalario de Santiago	FISABIO	FISABIO	Santiago de Compostela	Submission by Fisabio
+CHUVI	CHUVI	GA	Galicia	CHUVI	Complejo Hospitalario de Vigo	CHUVI	Complejo Hospitalario de Vigo	Vigo	
+CNM	CNM	MD	Comunidad de Madrid	CNM	Complejo Nacional Madrid	CNM	Complejo Nacional Madrid	Madrid	
+FISABIO	FISABIO	CV	Comunitat Valenciana	FISABIO	FISABIO	FISABIO	FISABIO	Valencia	Submission by Fisabio
+HCB	HCB	CT	Catalunya	HCB	Hospital Clinico de Barcelona	HCB	Hospital Clinico de Barcelona	Barcelona	
+HUVR	HUVR	AN	Andalucia	HUVR	Hospital Univesitario Virgen del Rocio	HUVR	Hospital Univesitario Virgen del Rocio	Sevilla	

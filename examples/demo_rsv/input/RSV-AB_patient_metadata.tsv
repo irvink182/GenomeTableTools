@@ -1,0 +1,37 @@
+Virus name	Subtype	Accession ID	Collection date	Location	Host	Additional location information	Sampling strategy	Gender	Patient age	Patient status	Vaccination history	Last vaccination date	Passage	Specimen	Additional host information	AA Substitutions	Sequence Length	Lineage	Genotype
+hRSV/A/Spain/VC-FISABIO-0001/2025	A	EPI_ISL_99000001	2025-10-01	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	3 months	Outpatient	Unknown			Nasopharyngeal swab			15230		
+hRSV/A/Spain/MD-CNM-0002/2025	A	EPI_ISL_99000002	2025-10-02	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	8 months	Hospitalized	Unknown			Nasopharyngeal swab			15120		
+hRSV/A/Spain/GA-CHUS-0003/2025	A	EPI_ISL_99000003	2025-10-03	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	2 years	Recovered	Unknown			Nasopharyngeal swab			15010		
+hRSV/A/Spain/GA-CHUVI-0004/2025	A	EPI_ISL_99000004	2025-10-04	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	34 years	ICU	Unknown			Nasopharyngeal swab			14900		
+hRSV/A/Spain/AN-HUVR-0005/2025	A	EPI_ISL_99000005	2025-10-05	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	76 years	Outpatient	Unknown			Nasopharyngeal swab			14790		
+hRSV/A/Spain/CT-HCB-0006/2025	A	EPI_ISL_99000006	2025-10-06	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	3 months	Hospitalized	Unknown			Nasopharyngeal swab			14680		
+hRSV/A/Spain/VC-FISABIO-0007/2025	A	EPI_ISL_99000007	2025-10-07	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	8 months	Recovered	Unknown			Nasopharyngeal swab			14570		
+hRSV/A/Spain/MD-CNM-0008/2025	A	EPI_ISL_99000008	2025-10-08	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	2 years	ICU	Unknown			Nasopharyngeal swab			14460		
+hRSV/A/Spain/GA-CHUS-0009/2025	A	EPI_ISL_99000009	2025-10-09	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	34 years	Outpatient	Unknown			Nasopharyngeal swab			15230		
+hRSV/A/Spain/GA-CHUVI-0010/2025	A	EPI_ISL_99000010	2025-10-10	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	76 years	Hospitalized	Unknown			Nasopharyngeal swab			15120		
+hRSV/A/Spain/AN-HUVR-0011/2025	A	EPI_ISL_99000011	2025-10-11	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	3 months	Recovered	Unknown			Nasopharyngeal swab			15010		
+hRSV/A/Spain/CT-HCB-0012/2025	A	EPI_ISL_99000012	2025-10-12	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	8 months	ICU	Unknown			Nasopharyngeal swab			14900		
+hRSV/A/Spain/VC-FISABIO-0013/2025	A	EPI_ISL_99000013	2025-11-13	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	2 years	Outpatient	Unknown			Nasopharyngeal swab			14790		
+hRSV/A/Spain/MD-CNM-0014/2025	A	EPI_ISL_99000014	2025-11-14	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	34 years	Hospitalized	Unknown			Nasopharyngeal swab			14680		
+hRSV/A/Spain/GA-CHUS-0015/2025	A	EPI_ISL_99000015	2025-11-15	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	76 years	Recovered	Unknown			Nasopharyngeal swab			14570		
+hRSV/A/Spain/GA-CHUVI-0016/2025	A	EPI_ISL_99000016	2025-11-16	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	3 months	ICU	Unknown			Nasopharyngeal swab			14460		
+hRSV/A/Spain/AN-HUVR-0017/2025	A	EPI_ISL_99000017	2025-11-17	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	8 months	Outpatient	Unknown			Nasopharyngeal swab			15230		
+hRSV/A/Spain/CT-HCB-0018/2025	A	EPI_ISL_99000018	2025-11-18	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	2 years	Hospitalized	Unknown			Nasopharyngeal swab			15120		
+hRSV/B/Spain/VC-FISABIO-0019/2025	B	EPI_ISL_99000019	2025-11-19	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	34 years	Recovered	Unknown			Nasopharyngeal swab			15010		
+hRSV/B/Spain/MD-CNM-0020/2025	B	EPI_ISL_99000020	2025-11-20	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	76 years	ICU	Unknown			Nasopharyngeal swab			14900		
+hRSV/B/Spain/GA-CHUS-0021/2025	B	EPI_ISL_99000021	2025-11-21	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	3 months	Outpatient	Unknown			Nasopharyngeal swab			14790		
+hRSV/B/Spain/GA-CHUVI-0022/2025	B	EPI_ISL_99000022	2025-11-22	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	8 months	Hospitalized	Unknown			Nasopharyngeal swab			14680		
+hRSV/B/Spain/AN-HUVR-0023/2025	B	EPI_ISL_99000023	2025-11-23	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	2 years	Recovered	Unknown			Nasopharyngeal swab			14570		
+hRSV/B/Spain/CT-HCB-0024/2025	B	EPI_ISL_99000024	2025-11-24	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	34 years	ICU	Unknown			Nasopharyngeal swab			14460		
+hRSV/B/Spain/VC-FISABIO-0025/2025	B	EPI_ISL_99000025	2025-12-25	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	76 years	Outpatient	Unknown			Nasopharyngeal swab			15230		
+hRSV/B/Spain/MD-CNM-0026/2025	B	EPI_ISL_99000026	2025-12-26	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	3 months	Hospitalized	Unknown			Nasopharyngeal swab			15120		
+hRSV/B/Spain/GA-CHUS-0027/2025	B	EPI_ISL_99000027	2025-12-27	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	8 months	Recovered	Unknown			Nasopharyngeal swab			15010		
+hRSV/B/Spain/GA-CHUVI-0028/2025	B	EPI_ISL_99000028	2025-12-28	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	2 years	ICU	Unknown			Nasopharyngeal swab			14900		
+hRSV/B/Spain/AN-HUVR-0029/2025	B	EPI_ISL_99000029	2025-12-01	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	34 years	Outpatient	Unknown			Nasopharyngeal swab			14790		
+hRSV/B/Spain/CT-HCB-0030/2025	B	EPI_ISL_99000030	2025-12-02	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	76 years	Hospitalized	Unknown			Nasopharyngeal swab			14680		
+hRSV/B/Spain/VC-FISABIO-0031/2025	B	EPI_ISL_99000031	2025-12-03	Europe / Spain / Comunitat Valenciana / Valencia	Human		Sentinel surveillance	Male	3 months	Recovered	Unknown			Nasopharyngeal swab			14570		
+hRSV/B/Spain/MD-CNM-0032/2025	B	EPI_ISL_99000032	2025-12-04	Europe / Spain / Madrid / Madrid	Human		Sentinel surveillance	Female	8 months	ICU	Unknown			Nasopharyngeal swab			14460		
+hRSV/B/Spain/GA-CHUS-0033/2025	B	EPI_ISL_99000033	2025-12-05	Europe / Spain / Galicia / Santiago de Compostela	Human		Sentinel surveillance	Male	2 years	Outpatient	Unknown			Nasopharyngeal swab			15230		
+hRSV/B/Spain/GA-CHUVI-0034/2025	B	EPI_ISL_99000034	2025-12-06	Europe / Spain / Galicia / Vigo	Human		Sentinel surveillance	Female	34 years	Hospitalized	Unknown			Nasopharyngeal swab			15120		
+hRSV/B/Spain/AN-HUVR-0035/2025	B	EPI_ISL_99000035	2025-12-07	Europe / Spain / Andalucía / Sevilla	Human		Sentinel surveillance	Male	76 years	Recovered	Unknown			Nasopharyngeal swab			15010		
+hRSV/B/Spain/CT-HCB-0036/2025	B	EPI_ISL_99000036	2025-12-08	Europe / Spain / Cataluña / Barcelona	Human		Sentinel surveillance	Female	3 months	ICU	Unknown			Nasopharyngeal swab			14900		
