@@ -128,7 +128,18 @@ genometabletools filter \
     --where "Sequence Length>=13700" \
     --output filtered_table.tsv
 ```
-*Additional `filter` operators include:* `contains`, `startswith`, `endswith`, `regex`, `isna`, `notna`, `>`, `<`, `>=`, `<=`, `=` and `!=`.
+
+### 4. Filter RSV-A after 2018 and only Galicia and Comunitat Valenciana records
+```bash
+genometabletools filter \
+    concatenated_table.tsv \
+    --where "Subtype=A" \
+    --where "Collection date after 2018-01-01" \
+    --where "autonomous_community in Galicia,Comunitat Valenciana" \
+    --output filtered_table.tsv
+```
+
+*Additional `filter` operators include:* `contains`, `startswith`, `endswith`, `regex`, `isna`, `notna`, `before`, `after`, `between`, `in` `>`, `<`, `>=`, `<=`, `=` and `!=`.
 
 
 ## Examples
