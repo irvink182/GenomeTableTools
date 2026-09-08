@@ -1,5 +1,6 @@
 import argparse
 
+from importlib.metadata import version
 from . import concat
 from . import search
 from . import annotate
@@ -11,7 +12,18 @@ from . import filter
 def main():
 
     parser = argparse.ArgumentParser(
-        prog="genometabletools"
+        prog="genometabletools",
+        description=(
+            "Toolkit for manipulating tables"
+        ),
+        epilog="Documentation: https://github.com/irvink182/GenomeTableTools"
+    )
+
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {version('genometabletools')}",
     )
 
     subparsers = parser.add_subparsers(

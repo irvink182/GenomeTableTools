@@ -90,9 +90,14 @@ TEXT_OPERATORS = {
     "=",
     "!=",
     "contains",
+    "notcontains",
     "startswith",
+    "notstartswith",
     "endswith",
+    "notendswith",
     "regex",
+    "notregex",
+    "in",
 }
 
 NUMERIC_OPERATORS = {
@@ -107,13 +112,26 @@ MISSING_OPERATORS = {
     "notna",
 }
 
+DATE_OPERATORS = {
+    "before",
+    "after",
+}
+
 PARSE_OPERATORS = [
     " isna",
     " notna",
+    " notcontains ",
     " contains ",
+    " notstartswith ",
     " startswith ",
+    " notendswith ",
     " endswith ",
+    " notregex ",
     " regex ",
+    " between ",
+    " before ",
+    " after ",
+    " in ",
     ">=",
     "<=",
     "!=",
@@ -121,6 +139,18 @@ PARSE_OPERATORS = [
     "<",
     "=",
 ]
+
+def apply_in(series, value):
+    """
+    Apply an 'in' filter to a text Series.
+    """
+
+    values = [
+        normalize_text(v)
+        for v in value.split(",")
+    ]
+
+    return series.isin(values)
 
 OPERATORS = {
 
@@ -133,18 +163,29 @@ OPERATORS = {
 
     "contains": lambda s, v:
         s.str.contains(v, regex=False, na=False),
+    "notcontains": lambda s, v:
+        ~s.str.contains(v, regex=False, na=False),
 
     "startswith": lambda s, v:
         s.str.startswith(v, na=False),
+    "notstartswith": lambda s, v:
+        ~s.str.startswith(v, na=False),
 
     "endswith": lambda s, v:
         s.str.endswith(v, na=False),
+    "notendswith": lambda s, v:
+        ~s.str.endswith(v, na=False),
 
     "regex": lambda s, v:
-        s.str.contains(v, regex=True, na=False),
+        s.str.regex(v, regex=True, na=False),
+    "notregex": lambda s, v:
+        ~s.str.regex(v, regex=False, na=False),
 
     "isna": lambda s, _: s.isna(),
     "notna": lambda s, _: s.notna(),
+    "before": lambda s, v: s < v,
+    "after": lambda s, v: s > v,
+    "in": apply_in,
 }
 
 def normalize_text(text):
@@ -199,8 +240,93 @@ def parse_filter(expression):
     raise ValueError(f"Invalid filter: {expression}")
 
 ###############################################################################
+# Filter preparation
+###############################################################################
+
+def prepare_numeric(series):
+    """
+    Prepare a numeric Series.
+    """
+
+    series = pd.to_numeric(
+        series,
+        errors="coerce",
+    )
+
+    if series.isna().all():
+        raise ValueError(
+            "Column is not numeric."
+        )
+
+    return series
+
+
+def prepare_datetime(series):
+    """
+    Prepare a datetime Series.
+    """
+
+    series = pd.to_datetime(
+        series,
+        errors="coerce",
+    )
+
+    if series.isna().all():
+        raise ValueError(
+            "Column is not datetime."
+        )
+
+    return series
+
+
+def prepare_text(series):
+    """
+    Prepare a text Series.
+    """
+
+    return normalize_series(series)
+
+###############################################################################
 # Filter evaluator
 ###############################################################################
+def apply_between(series, value):
+    """
+    Apply a between filter to a numeric or datetime Series.
+    """
+
+    start, end = map(
+        str.strip,
+        value.split(","),
+    )
+
+    # Try numeric
+    try:
+        numeric = prepare_numeric(series)
+
+        return (
+            (numeric >= float(start))
+            &
+            (numeric <= float(end))
+        )
+
+    except ValueError:
+        pass
+
+    # Try datetime
+    try:
+        dates = prepare_datetime(series)
+
+        return (
+            (dates >= pd.to_datetime(start))
+            &
+            (dates <= pd.to_datetime(end))
+        )
+
+    except ValueError:
+
+        raise ValueError(
+            "Between is only supported for numeric or datetime columns."
+        )
 
 def apply_filter(df, column, operator, value):
 
@@ -212,14 +338,17 @@ def apply_filter(df, column, operator, value):
     # Numeric operators
     if operator in NUMERIC_OPERATORS:
 
-        series = pd.to_numeric(series, errors="coerce")
-
-        if series.isna().all():
-            raise ValueError(
-                f"Column '{column}' is not numeric."
-            )
+        series = prepare_numeric(series)
 
         value = float(value)
+
+    # Date operators
+    elif operator in DATE_OPERATORS:
+
+        series = prepare_datetime(series)
+
+        if operator != "between":
+            value = pd.to_datetime(value)
 
     # Text operators
     elif operator in TEXT_OPERATORS:
@@ -233,6 +362,14 @@ def apply_filter(df, column, operator, value):
         # Nothing to prepare
         pass
 
+    # Between operator
+    elif operator == "between":
+
+        return apply_between(
+            series,
+            value,
+        )
+    
     else:
         raise ValueError(f"Unknown operator: {operator}")
 

@@ -95,6 +95,15 @@ genometabletools filter \
 	--where "Sequence Length>=13703" \
 	--output examples/demo_rsv/output/RSV-AB_filter_stB_illumina_cov90.tsv
 ```
+#### Filter RSV-A after 2025-10-12 and only Galicia and Comunitat Valenciana records
+```bash
+genometabletools filter \
+    concatenated_table.tsv \
+    --where "Subtype=A" \
+    --where "Collection date after 2018-01-01" \
+    --where "autonomous_community in Galicia,Comunitat Valenciana" \
+    --output filtered_table.tsv
+```
 
 ### 5. Search records by "Accession ID"
 
