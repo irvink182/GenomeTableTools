@@ -53,6 +53,7 @@ class AnnotationOperation:
             "columns_copied": [],
             "matched": 0,
             "not_annotated": 0,
+            "renamed_columns": {},
             "execution_time": None,
             "timestamp": None,
         }
@@ -63,9 +64,33 @@ class AnnotationOperation:
         columns=None,
         exclude_columns=None,
         overwrite=False,
+        rename_columns=None,
     ):
 
         start = time.perf_counter()
+
+        # ------------------
+        # Rename reference columns
+        # ------------------
+
+        if rename_columns is None:
+            rename_columns = {}
+        elif not isinstance(rename_columns, dict):
+            raise TypeError(
+                "'rename_columns' must be a dictionary."
+            )
+
+        missing = [
+            column
+            for column in rename_columns
+            if column not in self.reference.columns
+        ]
+
+        if missing:
+            raise ValueError(
+                "Columns to rename not found in reference table: "
+                f"{', '.join(missing)}"
+            )
 
         # ------------------
         # Select columns
@@ -125,11 +150,28 @@ class AnnotationOperation:
                 f"'{key}' not found in reference table."
             )
 
-        ref = self.reference.df[
-            [key] + columns
+        # ------------------
+        # Reference table
+        # ------------------
+
+        reference_columns = columns
+
+        columns = [
+            rename_columns.get(
+                column,
+                column,
+            )
+            for column in reference_columns
         ]
 
-
+        ref = (
+            self.reference.df[
+                [key] + reference_columns
+            ]
+            .rename(
+                columns=rename_columns,
+            )
+        )
 
         shared_columns = [
 
@@ -191,17 +233,22 @@ class AnnotationOperation:
         )
 
         # ------------------
-        # Overwrite=False
+        # New columns
         # ------------------
 
         for col in new_columns:
-            merged.rename(
-                columns={
-                    f"{col}_ref": col
-                },
+            ref_col = f"{col}_ref"
 
-            inplace=True,
-            )
+            if ref_col in merged.columns:
+                merged.rename(
+                    columns={
+                        ref_col: col,
+                    },
+                    inplace=True,
+                )
+        # ------------------
+        # Shared columns
+        # ------------------
 
         for col in shared_columns:
             ref_col = f"{col}_ref"
@@ -253,6 +300,7 @@ class AnnotationOperation:
         self.report["shared_columns"] = shared_columns
         self.report["new_columns"] = new_columns
         self.report["columns_copied"] = columns
+        self.report["renamed_columns"] = rename_columns
         self.report["matched"] = int(matched)
         self.report["not_annotated"] = int(not_annotated)
         self.report["execution_time"] = round(

@@ -294,6 +294,7 @@ class Table:
         columns=None,
         exclude_columns=None,
         overwrite=False,
+        rename_columns=None,
     ):
 
         """
@@ -312,6 +313,7 @@ class Table:
             columns=columns,
             exclude_columns=exclude_columns,
             overwrite=overwrite,
+            rename_columns=rename_columns,
         )
 
     def integrate(

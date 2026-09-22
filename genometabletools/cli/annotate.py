@@ -6,6 +6,12 @@ from genometabletools.table import Table
 
 def run(args):
 
+    rename_columns = None
+    if args.rename_columns is not None:
+        rename_columns = dict(
+            args.rename_columns
+        )
+
     target = Table(args.input)
 
     reference = Table(args.reference)
@@ -16,6 +22,7 @@ def run(args):
         columns=args.columns,
         exclude_columns=args.exclude_columns,
         overwrite=args.overwrite,
+        rename_columns=rename_columns,
     )
 
     result.write(args.output)
@@ -49,7 +56,7 @@ def add_parser(subparsers):
     parser.add_argument(
         "--columns",
         action="append",
-        help="Columns from the referencia table to copy (can be repated).",
+        help="Columns from the reference table to copy (can be repated).",
     )
 
     parser.add_argument(
@@ -62,6 +69,17 @@ def add_parser(subparsers):
     	"--overwrite",
     	action="store_true",
     	help="Overwrite existing values."
+    )
+
+    parser.add_argument(
+        "--rename-columns",
+        nargs=2,
+        metavar=("SOURCE", "TARGET"),
+        action="append",
+        help=(
+            "Rename reference columns before annotation. "
+            "Can be specified multiple times."
+        ),
     )
 
     parser.add_argument(
