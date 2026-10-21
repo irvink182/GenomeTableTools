@@ -58,7 +58,8 @@ def read_table(filepath):
         df = pd.read_csv(
             filepath,
             sep=",",
-            dtype="string"
+            dtype="string",
+            keep_default_na=False,
         )
 
     elif extension == ".tsv":
@@ -68,7 +69,8 @@ def read_table(filepath):
         df = pd.read_csv(
             filepath,
             sep="\t",
-            dtype="string"
+            dtype="string",
+            keep_default_na=False,
         )
 
     elif extension == ".txt":
@@ -80,14 +82,16 @@ def read_table(filepath):
         df = pd.read_csv(
             filepath,
             sep=sep,
-            dtype="string"
+            dtype="string",
+            keep_default_na=False,
         )
 
     elif extension in [".xlsx", ".xls"]:
 
         df = pd.read_excel(
             filepath,
-            dtype="string"
+            dtype="string",
+            keep_default_na=False,
         )
 
         metadata["sheet"] = "Sheet1"
