@@ -6,9 +6,10 @@ rows_target              : 36
 rows_reference           : 3
 rows_output              : 36
 columns_copied           : ['institute_type']
-matched                  : 18
-not_annotated            : 18
-execution_time           : 0.008
-timestamp                : 2026-08-03T16:45:54.187764
+matched                  : 0
+not_annotated            : 36
+renamed_columns          : {}
+execution_time           : 0.007
+timestamp                : 2026-11-13T15:57:42.373678
 shared_columns           : []
 new_columns              : ['institute_type']

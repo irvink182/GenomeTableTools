@@ -1,519 +1,49 @@
 #!/usr/bin/env python3
 
 """
-Generate laboratories.tsv and submitters.tsv from a GISAID submitters file.
+Laboratory metadata registry utilities.
 
 GenomeTableTools
 """
 
-from pathlib import Path
-from datetime import datetime
-import re
 import pandas as pd
-import csv
 
 
-###############################################################################
-# CONSTANT VARIABLES
-###############################################################################
-
-# 1. Communities
-
-COMMUNITIES = {
-    "AN": "Andalucia",
-    "AR": "Aragon",
-    "AS": "Asturias",
-    "CB": "Cantabria",
-    "CL": "Castilla y Leon",
-    "CM": "Castilla-La Mancha",
-    "CN": "Canarias",
-    "CT": "Catalunya",
-    "CV": "Comunitat Valenciana",
-    "EX": "Extremadura",
-    "GA": "Galicia",
-    "IB": "Illes Balears",
-    "MC": "Region de Murcia",
-    "MD": "Comunidad de Madrid",
-    "NA": "Navarra",
-    "PV": "Pais Vasco",
-    "RI": "La Rioja",
-    "CE": "Ceuta",
-    "ML": "Melilla",
-    "UN": "Unknown",
-}
-
-# 2. Communities aliases
-
-COMMUNITY_ALIASES = {
-    "NC" : "NA",   # Navarra
-    "PVA": "PV",  # si alguna vez aparece
-    "BC" : "PV", #Basque country = pais vasco
-    "CAT": "CT",  # si apareciera Cataluña en otro formato
+COMMUNITY_PREFIXES = {
+    "AN",
+    "AR",
+    "AS",
+    "CB",
+    "CL",
+    "CM",
+    "CN",
+    "CT",
+    "CV",
+    "EX",
+    "GA",
+    "IB",
+    "MC",
+    "MD",
+    "NA",
+    "PV",
+    "RI",
+    "CE",
+    "ML",
+    "un",
+    # Historical / alternative forms
+    "MAD",
+    "CVA",
+    "PVA",
+    "NC",
+    "BC",
+    "CAT",
+    "VC",
 }
 
 ###############################################################################
-# REGISTRY I/O
+# I/O
 ###############################################################################
 
-# 1. Load curated metadata tables
-
-def load_registry(registry_dir):
-
-    labs = pd.read_csv(
-        registry_dir / "laboratories.tsv",
-        sep="\t",
-        keep_default_na=False,
-        dtype=str,
-    )
-
-    submitters = pd.read_csv(
-        registry_dir / "submitters.tsv",
-        sep="\t",
-        keep_default_na=False,
-        dtype=str,
-    )
-
-    # ------------------------------------------------------------------
-    # Lookups
-    # ------------------------------------------------------------------
-
-    lab_metadata = (
-        labs[
-            [
-                "lab_code",
-                "lab_code_normalized",
-                "autonomous_community",
-                "autonomous_community_code",
-                "institution",
-                "originating_lab",
-                "city",
-                "submitter_lab_code",
-                "laboratory_comments",
-            ]
-        ]
-        .drop_duplicates("lab_code")
-    )
-
-    laboratories_lookup = (
-        lab_metadata
-        .set_index("lab_code")
-        .to_dict("index")
-    )
-
-    submitter_metadata = (
-        submitters[
-            [
-                "submitter_lab_code",
-                "submitter_lab_name",
-                "submitter_name",
-            ]
-        ]
-        .drop_duplicates("submitter_lab_code")
-    )
-
-    submitters_lookup = (
-        submitter_metadata
-        .set_index("submitter_lab_code")
-        .to_dict("index")
-    )
-
-    return (
-        labs,
-        submitters,
-        {
-            "laboratories": laboratories_lookup,
-            "submitters": submitters_lookup,
-        },
-    )
-
-
-def load_lab_aliases(path):
-    """
-    Load curated laboratory aliases.
-
-    Returns
-    -------
-    dict
-        Mapping:
-            identifier -> lab_code
-    """
-
-    identifier_aliases = {}
-
-    with open(path, newline="", encoding="utf-8") as fh:
-
-        reader = csv.DictReader(fh, delimiter="\t")
-
-        for row in reader:
-
-            identifier = row["identifier"].strip().upper()
-            lab_code = row["lab_code"].strip().upper()
-
-            if identifier and lab_code:
-                identifier_aliases[identifier] = lab_code
-
-    return identifier_aliases
-
-###############################################################################
-# PARSER
-###############################################################################
-
-# 1. Extract identifier
-
-def extract_identifier(virus_name):
-
-    if pd.isna(virus_name):
-        return ""
-
-    parts = str(virus_name).split("/")
-
-    if len(parts) < 4:
-        return ""
-
-    return parts[3]
-
-# 2. Extract community
-def extract_community(identifier):
-
-    if not identifier:
-        return ""
-
-    identifier = identifier.upper()
-
-    # Unknown community
-    if identifier.startswith("UN-"):
-        return "UN"
-
-    # Special prefixes
-    if identifier.startswith("CVA_"):
-        return "CV"
-
-    if identifier.startswith("VC"):
-        return "CV"
-
-    if identifier.startswith("MAD"):
-        return "MD"
-
-    if identifier.startswith("PVA-"):
-        return "PV"
-
-    m = re.match(r"^([A-Z]{2})-", identifier)
-    if m:
-        community = m.group(1)
-        return COMMUNITY_ALIASES.get(community, community)
-
-    return ""
-
-# 3. Extract lab_code
-def extract_lab_code(
-    identifier,
-    identifier_aliases,
-):
-    """
-    Extract laboratory code.
-
-    Priority
-    --------
-    1. Exact identifier aliases (lab_aliases.tsv)
-    2. Prefix aliases
-    3. Regex inference from identifier
-    4. Unknown ("")
-    """
-
-    # ------------------------------------------------------------
-    # 1. Curated originating laboratory (highest priority)
-    # ------------------------------------------------------------
-
-    if identifier in identifier_aliases:
-        return identifier_aliases[identifier]
-
-    ####identifier####
-    ident = identifier.strip().upper()
-
-    if ident in identifier_aliases:
-        return identifier_aliases[ident]
-
-    if not identifier:
-        return ""
-
-    x = identifier.upper()
-
-    # ------------------------------------------------------------
-    # Normalization
-    # ------------------------------------------------------------
-
-    if x.startswith("UN-"):
-        x = x[3:]
-
-    m = re.match(r"^[A-Z]{2}-(.+)$", x)
-    if m:
-        x = m.group(1)
-
-    # ------------------------------------------------------------
-    # 2. Identifier aliases
-    # ------------------------------------------------------------
-
-    for prefix, lab_code in identifier_aliases.items():
-        if x.startswith(prefix.upper()):
-            return lab_code
-
-    # ------------------------------------------------------------
-    # 3. Regex inference
-    # ------------------------------------------------------------
-
-    regex_patterns = [
-        r"^CVA_([A-Z0-9]+)-",
-        r"^(MAD)\d+-",
-        r"^([A-Z0-9_]+)_\d+(?:REP)?(?:_[A-Z]+)?$",
-        r"^([A-Z]+)\d+$",
-        r"^([A-Z0-9]+)-\d+$",
-        r"^([A-Z0-9]+)-",
-        r"^([A-Z]+)\d+",
-    ]
-
-    for pattern in regex_patterns:
-        m = re.match(pattern, x)
-        if m:
-            return m.group(1)
-
-    # ------------------------------------------------------------
-    # Unknown
-    # ------------------------------------------------------------
-
-    return ""
-
-# 4. Infer community
-def resolve_community(
-    identifier,
-    lab_code,
-    laboratories_lookup,
-):
-    """
-    Resolve autonomous community.
-
-    Priority
-    --------
-    1. laboratories.tsv
-    2. Virus name
-    """
-
-    lab = laboratories_lookup.get(lab_code, {})
-
-    community = lab.get("autonomous_community_code", "")
-    if community:
-        return community
-
-    return extract_community(identifier)
-
-# 5. Parse metadata
-def parse_metadata(df, registry_dir):
-
-    registry_labs, registry_submitters, lookups = load_registry(registry_dir)
-
-    laboratories_lookup = lookups["laboratories"]
-    submitters_lookup = lookups["submitters"]
-
-    identifier_aliases = load_lab_aliases(
-        registry_dir / "lab_aliases.tsv"
-    )
-
-    df["identifier"] = df["Virus name"].apply(extract_identifier)
-
-    df["lab_code"] = df["identifier"].map(
-        lambda x: extract_lab_code(
-           x,
-            identifier_aliases,
-        )
-    )
-
-    def get_lab_info(lab_code):
-        return laboratories_lookup.get(lab_code, {})
-
-    df["lab_code_normalized"] = df.apply(
-        lambda row: (
-            get_lab_info(row["lab_code"]).get("lab_code_normalized")
-            if row["lab_code"] in laboratories_lookup
-            else row["lab_code"]
-        ),
-        axis=1,
-    )
-
-    df["autonomous_community_code"] = df.apply(
-        lambda row: resolve_community(
-            row["identifier"],
-            row["lab_code"],
-            laboratories_lookup,
-        ),
-        axis=1,
-    )
-    
-    df["institution"] = df["lab_code"].map(
-        lambda x: get_lab_info(x).get("institution", "")
-    )
-
-    df["originating_lab"] = df["lab_code"].map(
-        lambda x: get_lab_info(x).get("originating_lab", "")
-    )
-
-    df["city"] = df["lab_code"].map(
-        lambda x: get_lab_info(x).get("city", "")
-    )
-
-    df["submitter_lab_code"] = df["lab_code"].map(
-        lambda x: get_lab_info(x).get("submitter_lab_code", "")
-    )
-
-    df["laboratory_comments"] = df["lab_code"].map(
-        lambda x: get_lab_info(x).get("laboratory_comments", "")
-    )
-
-    def get_submitter(code):
-        return submitters_lookup.get(code, {})
-
-    df["submitter_lab_name"] = df["submitter_lab_code"].map(
-        lambda x: get_submitter(x).get("submitter_lab_name", "")
-    )
-
-    df["submitter_name"] = df["submitter_lab_code"].map(
-        lambda x: get_submitter(x).get("submitter_name", "")
-    )
-
-    df["autonomous_community"] = (
-        df["autonomous_community_code"]
-        .map(COMMUNITIES)
-        .fillna("")
-    )
-
-    return df
-
-
-###############################################################################
-# Candidata builders
-###############################################################################
-# 1. laboratory candidates
-def build_laboratory_candidates(df, registry_labs):
-
-    known = set(registry_labs["lab_code"])
-
-    candidate_labs = (
-        df.loc[
-            (~df["lab_code"].isin(known))
-            & (df["lab_code"] != ""),
-            [
-                "lab_code",
-                "lab_code_normalized",
-                "autonomous_community_code",
-                "autonomous_community",
-                "institution",
-                "originating_lab",
-            ],
-        ]
-        .drop_duplicates()
-        .sort_values("lab_code")
-    )
-
-    candidate_labs["submitter_lab_code"] = ""
-    candidate_labs["city"] = ""
-    candidate_labs["laboratory_comments"] = ""
-
-    return candidate_labs
-
-###############################################################################
-# Reporting
-###############################################################################
-
-def print_report(input_file, stats, title):
-
-    today = datetime.now().strftime("%Y-%m-%d")
-
-    print("\n" + "=" * 65)
-    print(f"GenomeTableTools - {title}")
-    print("=" * 65)
-
-    print(f"Date       : {today}")
-    print(f"Input file : {Path(input_file).name}")
-
-    print("\nParser summary")
-    print("-" * 65)
-
-    print(f"{'Samples                   :':30s} {stats['samples']:>8,}")
-    
-    if "identifiers" in stats:
-        print(f"{'Identifiers               :':30s} {stats['identifiers']:>8}")
-    
-    if "unique_lab_codes" in stats:
-        print(f"{'Unique laboratory codes   :':30s} {stats['unique_lab_codes']:>8}")
-
-    if "unique_submitters" in stats:
-        print(f"{'Unique submitters         :':30s} {stats['unique_submitters']:>8}")
-
-    print("\nResolved")
-    print("-" * 65)
-
-    if "known_laboratories" in stats:
-        print(f"{'Known laboratories        :':30s} {stats['known_laboratories']:>8}")
-
-    if "unknown_identifiers" in stats:
-        print(f"{'Unknown identifiers       :':30s} {stats['unknown_identifiers']:>8}")
-
-    print("\nCommunities")
-    print("-" * 65)
-
-    if "known_communities" in stats:
-        print(f"{'Known communities         :':30s} {stats['known_communities']:>8}")
-
-    if "unknown_communities" in stats:
-        print(f"{'Unknown communities       :':30s} {stats['unknown_communities']:>8}")
-
-    print("\nRegistry")
-    print("-" * 65)
-
-    if "registry_laboratories" in stats:
-        print(f"{'Laboratories in registry  :':30s} {stats['registry_laboratories']:>8}")
-    
-    if "registry_submitters" in stats:
-        print(f"{'Submitters in registry    :':30s} {stats['registry_submitters']:>8}")
-
-    if "registry_aliases" in stats:
-        print(f"{'Aliases in registry       :':30s} {stats['registry_aliases']:>8}")
-
-    print("\nQC warnings")
-    print("-" * 65)
-
-    warnings = False
-
-    if stats.get("unknown_labs", 0):
-        print(f"Unknown laboratories : {stats['unknown_labs']}")
-        warnings = True
-
-    if stats.get("unknown_communities", 0):
-        print(f"Unknown communities  : {stats['unknown_communities']}")
-        warnings = True
-
-    if stats.get("new_laboratories", 0):
-        print(f"New laboratories     : {stats['new_laboratories']}")
-        warnings = True
-
-    if stats.get("registry_conflicts", 0):
-        print(f"Registry conflicts   : {stats['registry_conflicts']}")
-        warnings = True
-
-    if not warnings:
-        print("None ✓")
-
-    print("\n" + "=" * 65)
-
-    if warnings:
-        print("\nSTATUS : REVIEW REQUIRED\n")
-    else:
-        print("\nSTATUS : PASS ✓\n")
-
-    print("=" * 65)
-
-###############################################################################
-# Commands
-###############################################################################
-# 1. load metadata
 def load_metadata(metadata_file):
 
     return pd.read_csv(
@@ -523,217 +53,1406 @@ def load_metadata(metadata_file):
         dtype=str,
     )
 
-# 2. build new candidates
-def registry_build(metadata_file, registry_dir):
 
-    # Load registry
-    registry_labs, registry_submitters, _ = load_registry(registry_dir)
+###############################################################################
+# IDENTIFIER PARSING
+###############################################################################
 
-    # Read metadata
-    df = load_metadata(metadata_file)
+def extract_identifier(virus_name):
+    """
+    Extract the sample identifier from a GISAID virus name.
+    """
 
-    # Parse metadata
-    df = parse_metadata(df, registry_dir)
+    if pd.isna(virus_name):
+        return ""
 
-    # Build labratory candidates
-    candidate_labs = build_laboratory_candidates(
-        df,
-        registry_labs,
-    )
+    parts = str(virus_name).strip().split("/")
 
-    # Build alias candidates
-    new_labs = candidate_labs
-    lab_conflicts = pd.DataFrame()
-    
-    ###############################################################################
-    # Stats to print in Report
-    ###############################################################################
+    if len(parts) < 4:
+        return ""
 
-    unknown_labs = (df["lab_code"] == "").sum()
-    unknown_comm = (df["autonomous_community_code"] == "").sum()
+    return parts[3].strip()
 
-    stats = {
-        "samples": len(df),
-        "identifiers": df["identifier"].nunique(),
 
-        "unique_lab_codes": (
-            df["lab_code"].replace("", pd.NA).nunique()
-        ),
+###############################################################################
+# REGISTRY
+###############################################################################
 
-        "unique_submitters": (
-            df["submitter_lab_code"]
-                .replace("", pd.NA)
-                .nunique()
-        ),
-
-        "known_laboratories": (
-            df["originating_lab"] != ""
-        ).sum(),
-
-        "unknown_identifiers": (
-            df["lab_code"] == ""
-        ).sum(),
-
-        "known_communities": (
-            df["autonomous_community_code"] != ""
-        ).sum(),
-
-        "unknown_communities": (
-            df["autonomous_community_code"] == ""
-        ).sum(),
-
-        "registry_laboratories": len(registry_labs),
-        "registry_submitters": len(registry_submitters),
-    }
-    
-    print_report(metadata_file, stats, title="Registry Builder",)
-
-    ###########################################################################
-    # Save outputs
-    ###########################################################################
-
-    outdir = registry_dir
-
-    outdir.mkdir(exist_ok=True)
-
-    generated = outdir / "generated"
-    generated.mkdir(exist_ok=True)
-
-    new_labs.to_csv(
-        generated / "laboratories_candidates.tsv",
-        sep="\t",
-        index=False,
-    )
-
-    lab_conflicts.to_csv(
-        generated / "laboratories_conflicts.tsv",
-        sep="\t",
-        index=False,
-    )
-
-    validation = (
-        df[
-            [
-                "Virus name",
-                "identifier",
-                "autonomous_community_code",
-                "lab_code",
-            ]
-        ]
-        .drop_duplicates()
-    )
-
-    unparsed = validation[
-        validation["lab_code"] == ""
-    ]
-
-    validation.to_csv(
-        registry_dir / "parser_validation.tsv",
-        sep="\t",
-        index=False,
-    )
-
-    summary = (
-        df.groupby("lab_code")
-        .agg(
-            n=("lab_code","size"),
-            example=("identifier","first")
-        )
-        .reset_index()
-        .sort_values("n", ascending=False)
-    )
-
-    summary.to_csv(
-        outdir/"lab_codes_summary.tsv",
-        sep="\t",
-        index=False
-    )
-
-    alias_candidates = (
-        df.loc[
-            df["lab_code"] == "",
-            [
-               "Virus name",
-               "identifier",
-           ]
-        ]
-        .drop_duplicates()
-    )
-
-    alias_candidates["lab_code"] = ""
-
-    alias_candidates = alias_candidates[
-        [
-            "identifier",
-            "lab_code",
-            "Virus name",
-        ]
-    ]
-
-    alias_candidates.to_csv(
-        generated / "lab_aliases_candidates.tsv",
-        sep="\t",
-        index=False,
-    )
-
-# 3. build new candidates
-def registry_parse(
-    metadata_file, 
-    registry_dir, 
-    output_file=None
+def split_known_and_new(
+    metadata,
+    reference,
+    accession_column="Accession ID",
 ):
+    """
+    Split current metadata into accessions already present
+    in the reference and newly observed accessions.
+    """
 
-    if output_file is None:
-        output_file = Path(metadata_file).with_suffix(".parsed.tsv")
+    if accession_column not in metadata.columns:
+        raise ValueError(
+            f"Column not found in metadata: {accession_column}"
+        )
 
-    # Read metadata
-    df = load_metadata(metadata_file)
-    
-    # Parse metadata
-    df = parse_metadata(df, registry_dir)
+    if accession_column not in reference.columns:
+        raise ValueError(
+            f"Column not found in reference: {accession_column}"
+        )
 
-    registry_labs, registry_submitters, lookups = load_registry(registry_dir)
-
-    identifier_aliases = load_lab_aliases(
-        registry_dir / "lab_aliases.tsv"
+    known_accessions = set(
+        reference[accession_column]
+        .dropna()
+        .astype(str)
+        .str.strip()
     )
 
-    stats = {
-        "samples": len(df),
-        "identifiers": df["identifier"].nunique(),
-        "unique_lab_codes": df["lab_code"].nunique(),
-        "unknown_labs": (df["lab_code"] == "").sum(),
-        "unknown_communities": (
-            df["autonomous_community_code"] == ""
-        ).sum(),
-        "registry_laboratories": len(registry_labs),
-        "registry_submitters": len(registry_submitters),
-    }
-
-    print_report(
-        metadata_file,
-        stats,
-        title="Registry Parser",
+    accessions = (
+        metadata[accession_column]
+        .astype("string")
+        .str.strip()
     )
 
-    laboratories_metadata = df[
-        [
-            "Accession ID",
-            "Virus name",
-            "identifier",
-            "originating_lab",
-            "lab_code",
+    is_known = accessions.isin(known_accessions)
+
+    known = metadata.loc[is_known].copy()
+    new = metadata.loc[~is_known].copy()
+
+    return known, new
+
+def build_lab_lookup(reference):
+    """
+    Build a historical lookup for each laboratory code.
+
+    The lookup preserves both the unique historical metadata values
+    and the individual relationships observed in the reference.
+    """
+
+    lookup = {}
+
+    for lab_code, group in reference.groupby("lab_code"):
+
+        if pd.isna(lab_code):
+            continue
+
+        lab_code = str(lab_code).strip().upper()
+
+        if not lab_code:
+            continue
+
+        originating_labs = sorted(
+            group["originating_lab"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .replace("", pd.NA)
+            .dropna()
+            .unique()
+        )
+
+        submitter_codes = sorted(
+            group["submitter_lab_code"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .replace("", pd.NA)
+            .dropna()
+            .unique()
+        )
+
+        lab_metadata_fields = [
             "lab_code_normalized",
             "autonomous_community_code",
             "autonomous_community",
             "institution",
             "city",
-            "submitter_lab_code",
-            "submitter_lab_name",
-            "submitter_name",
-            "laboratory_comments",
         ]
+
+        lab_metadata = {}
+
+        for field in lab_metadata_fields:
+
+            values = sorted(
+                group[field]
+                .dropna()
+                .astype(str)
+                .str.strip()
+                .replace("", pd.NA)
+                .dropna()
+                .unique()
+            )
+
+            lab_metadata[field] = (
+                values[0]
+                if len(values) == 1
+                else ""
+            )
+
+        records = []
+
+        for _, row in group.iterrows():
+
+            virus_name = str(
+                row.get("Virus name", "")
+            ).strip()
+
+            identifier = extract_identifier(
+                virus_name
+            )
+
+            originating_lab = str(
+                row.get("originating_lab", "")
+            ).strip()
+
+            submitter_lab_code = str(
+                row.get("submitter_lab_code", "")
+            ).strip()
+
+            records.append(
+                {
+                    "identifier": identifier,
+                    "originating_lab": originating_lab,
+                    "submitter_lab_code": submitter_lab_code,
+                }
+            )
+
+        lookup[lab_code] = {
+            "originating_labs": originating_labs,
+            "submitter_lab_codes": submitter_codes,
+            "lab_metadata": lab_metadata,
+            "records": records,
+        }
+
+    return lookup
+
+def strip_community_prefix(identifier):
+    """
+    Remove a known autonomous community prefix from an identifier.
+    
+    Examples
+    --------
+    CV-HGUV-12345     -> HGUV-12345
+    MAD-GM3-7-13-1    -> GM3-7-13-1
+    UN-ABC-123        -> ABC-123
+
+    """
+
+    if pd.isna(identifier):
+        return ""
+
+    identifier = str(identifier).strip()
+
+    if not identifier:
+        return ""
+
+    for community in COMMUNITY_PREFIXES:
+
+        for separator in ("-", "_"):
+
+            prefix = community + separator
+
+            if identifier.startswith(prefix):
+                return identifier[len(prefix):]
+
+    return identifier
+
+def resolve_lab_code(
+    identifier,
+    known_lab_codes,
+):
+    """
+    Resolve an identifier against known laboratory codes.
+
+    Only explicit laboratory-code prefixes are accepted.
+    Partial substring matches are not allowed.
+    """
+
+    identifier = strip_community_prefix(identifier)
+
+    if not identifier:
+        return ""
+
+    identifier = identifier.upper()
+
+    matches = []
+
+    for lab_code in known_lab_codes:
+
+        lab_code = str(lab_code).strip().upper()
+
+        if not lab_code:
+            continue
+
+        if (
+            identifier == lab_code
+            or identifier.startswith(lab_code + "-")
+            or identifier.startswith(lab_code + "_")
+        ):
+            matches.append(lab_code)
+
+    if not matches:
+        return ""
+
+    # If overlapping known codes exist, prefer the most specific one.
+    max_length = max(len(code) for code in matches)
+
+    best_matches = [
+        code
+        for code in matches
+        if len(code) == max_length
     ]
 
-    # export table
-    laboratories_metadata.to_csv(output_file, sep="\t", index=False)
+    if len(best_matches) == 1:
+        return best_matches[0]
+
+    return ""
+
+def resolve_lab_metadata(
+    lab_code,
+    identifier,
+    lab_lookup,
+):
+    """
+    Resolve historical laboratory metadata for a laboratory code.
+
+    Metadata is returned directly when the historical relationship
+    is unambiguous.
+
+    If the laboratory code has multiple historical relationships,
+    records that explicitly encode the laboratory code in the
+    identifier are used as additional evidence. A value is returned
+    only when that subset is unambiguous.
+    """
+
+    if not lab_code:
+        return {
+            "originating_lab": "",
+            "submitter_lab_code": "",
+            "lab_code_normalized": "",
+            "autonomous_community_code": "",
+            "autonomous_community": "",
+            "institution": "",
+            "city": "",
+        }
+
+    lab_code = str(lab_code).strip().upper()
+
+    if lab_code not in lab_lookup:
+        return {
+            "originating_lab": "",
+            "submitter_lab_code": "",
+            "lab_code_normalized": "",
+            "autonomous_community_code": "",
+            "autonomous_community": "",
+            "institution": "",
+            "city": "",
+        }
+
+    record = lab_lookup[lab_code]
+
+    lab_metadata = record["lab_metadata"]
+    originating_labs = record["originating_labs"]
+    submitter_codes = record["submitter_lab_codes"]
+
+    # ----------------------------------------------------------
+    # Direct resolution from historical relationships
+    # ----------------------------------------------------------
+
+    originating_lab = (
+        originating_labs[0]
+        if len(originating_labs) == 1
+        else ""
+    )
+
+    submitter_lab_code = (
+        submitter_codes[0]
+        if len(submitter_codes) == 1
+        else ""
+    )
+
+    # ----------------------------------------------------------
+    # Additional identifier-based resolution
+    # ----------------------------------------------------------
+
+    if not originating_lab or not submitter_lab_code:
+
+        stripped_identifier = strip_community_prefix(
+            identifier
+        ).upper()
+
+        explicit_lab_code = (
+            stripped_identifier == lab_code
+            or stripped_identifier.startswith(
+                lab_code + "-"
+            )
+            or stripped_identifier.startswith(
+                lab_code + "_"
+            )
+        )
+
+        if explicit_lab_code:
+
+            matching_records = []
+
+            for historical_record in record["records"]:
+
+                historical_identifier = (
+                    strip_community_prefix(
+                        historical_record["identifier"]
+                    )
+                    .upper()
+                )
+
+                historical_explicit = (
+                    historical_identifier == lab_code
+                    or historical_identifier.startswith(
+                        lab_code + "-"
+                    )
+                    or historical_identifier.startswith(
+                        lab_code + "_"
+                    )
+                )
+
+                if historical_explicit:
+                    matching_records.append(
+                        historical_record
+                    )
+
+            if matching_records:
+
+                if not originating_lab:
+
+                    historical_originating_labs = sorted(
+                        {
+                            r["originating_lab"]
+                            for r in matching_records
+                            if r["originating_lab"]
+                        }
+                    )
+
+                    if len(historical_originating_labs) == 1:
+                        originating_lab = (
+                            historical_originating_labs[0]
+                        )
+
+                if not submitter_lab_code:
+
+                    historical_submitter_codes = sorted(
+                        {
+                            r["submitter_lab_code"]
+                            for r in matching_records
+                            if r["submitter_lab_code"]
+                        }
+                    )
+
+                    if len(historical_submitter_codes) == 1:
+                        submitter_lab_code = (
+                            historical_submitter_codes[0]
+                        )
+
+    return {
+        "originating_lab": originating_lab,
+        "submitter_lab_code": submitter_lab_code,
+        "lab_code_normalized": lab_metadata[
+            "lab_code_normalized"
+        ],
+        "autonomous_community_code": lab_metadata[
+            "autonomous_community_code"
+        ],
+        "autonomous_community": lab_metadata[
+            "autonomous_community"
+        ],
+        "institution": lab_metadata[
+            "institution"
+        ],
+        "city": lab_metadata[
+            "city"
+        ],
+    }
+
+def build_submitter_lookup(reference):
+    """
+    Build a historical lookup from submitter laboratory codes
+    to submitter laboratory names.
+
+    A name is retained only when the historical relationship
+    is unambiguous.
+    """
+
+    lookup = {}
+
+    for submitter_code, group in reference.groupby(
+        "submitter_lab_code"
+    ):
+
+        if pd.isna(submitter_code):
+            continue
+
+        submitter_code = str(
+            submitter_code
+        ).strip().upper()
+
+        if not submitter_code:
+            continue
+
+        names = sorted(
+            group["submitter_lab_name"]
+            .dropna()
+            .astype(str)
+            .str.strip()
+            .replace("", pd.NA)
+            .dropna()
+            .unique()
+        )
+
+        lookup[submitter_code] = (
+            names[0]
+            if len(names) == 1
+            else ""
+        )
+
+    return lookup
+
+def registry_update(
+    metadata_file,
+    reference_file,
+    validation_file=None,
+    output_file=None,
+    review_output_file=None,
+    new_records_output_file=None,
+
+):
+    """
+    Update laboratory metadata using a historical curated reference.
+
+    New accessions are identified by comparing the current GISAID
+    metadata against the historical laboratory metadata. Laboratory
+    codes are resolved from the Virus name using known laboratory
+    codes, and associated metadata is recovered from the historical
+    reference when the relationship is unambiguous.
+
+    An optional curated validation file can be used to evaluate
+    laboratory metadata predictions.
+    """
+
+    # --------------------------------------------------------------
+    # Load input data
+    # --------------------------------------------------------------
+
+    metadata = load_metadata(metadata_file)
+    reference = load_metadata(reference_file)
+
+    # --------------------------------------------------------------
+    # Identify known and new accessions
+    # --------------------------------------------------------------
+
+    known, new = split_known_and_new(
+        metadata,
+        reference,
+    )
+
+    # --------------------------------------------------------------
+    # Extract sample identifiers
+    # --------------------------------------------------------------
+
+    new["identifier"] = (
+        new["Virus name"]
+        .map(extract_identifier)
+    )
+
+    # --------------------------------------------------------------
+    # Build historical laboratory lookup
+    # --------------------------------------------------------------
+
+    lab_lookup = build_lab_lookup(reference)
+
+    known_lab_codes = set(lab_lookup)
+
+    submitter_lookup = build_submitter_lookup(
+        reference
+    )
+
+    # --------------------------------------------------------------
+    # Resolve laboratory codes
+    # --------------------------------------------------------------
+
+    new["predicted_lab_code"] = (
+        new["identifier"]
+        .map(
+            lambda x: resolve_lab_code(
+                x,
+                known_lab_codes,
+            )
+        )
+    )
+
+    # --------------------------------------------------------------
+    # Resolve historical laboratory metadata
+    # --------------------------------------------------------------
+
+    resolved_metadata = new.apply(
+        lambda row: resolve_lab_metadata(
+            row["predicted_lab_code"],
+            row["identifier"],
+            lab_lookup,
+        ),
+        axis=1,
+    )
+
+    new["predicted_originating_lab"] = (
+        resolved_metadata.map(
+            lambda x: x["originating_lab"]
+        )
+    )
+
+    new["predicted_submitter_lab_code"] = (
+        resolved_metadata.map(
+            lambda x: x["submitter_lab_code"]
+        )
+    )
+
+    new["predicted_lab_code_normalized"] = (
+        resolved_metadata.map(
+            lambda x: x["lab_code_normalized"]
+        )
+    )
+
+    new["predicted_autonomous_community_code"] = (
+        resolved_metadata.map(
+            lambda x: x["autonomous_community_code"]
+        )
+    )
+
+    new["predicted_autonomous_community"] = (
+        resolved_metadata.map(
+            lambda x: x["autonomous_community"]
+        )
+    )
+
+    new["predicted_institution"] = (
+        resolved_metadata.map(
+            lambda x: x["institution"]
+        )
+    )
+
+    new["predicted_city"] = (
+        resolved_metadata.map(
+            lambda x: x["city"]
+        )
+    )
+
+    new["predicted_submitter_lab_name"] = (
+        new["predicted_submitter_lab_code"]
+        .map(
+            lambda x: submitter_lookup.get(
+                str(x).strip().upper(),
+                "",
+            )
+        )
+    )
+
+    # --------------------------------------------------------------
+    # Build updated laboratory metadata
+    # --------------------------------------------------------------
+
+    updated = metadata.copy()
+
+    # Preserve curated metadata for known accessions
+    reference_columns = [
+        column
+        for column in reference.columns
+        if column != "Virus name"
+    ]
+
+    updated = updated.merge(
+        reference[reference_columns],
+        on="Accession ID",
+        how="left",
+    )
+
+    # Add predictions for new accessions
+    new_predictions = new[
+        [
+            "Accession ID",
+            "identifier",
+            "predicted_originating_lab",
+            "predicted_lab_code",
+            "predicted_lab_code_normalized",
+            "predicted_autonomous_community_code",
+            "predicted_autonomous_community",
+            "predicted_institution",
+            "predicted_city",
+            "predicted_submitter_lab_code",
+            "predicted_submitter_lab_name",
+        ]
+    ].copy()
+
+    new_predictions = new_predictions.rename(
+        columns={
+            "identifier": "predicted_identifier",
+        }
+    )
+
+    updated = updated.merge(
+        new_predictions,
+        on="Accession ID",
+        how="left",
+    )
+
+    updated["identifier"] = (
+        updated["identifier"]
+        .fillna(updated["predicted_identifier"])
+    )
+
+    # Fill laboratory metadata for resolved new accessions
+    prediction_fields = {
+        "originating_lab": "predicted_originating_lab",
+        "lab_code": "predicted_lab_code",
+        "lab_code_normalized": "predicted_lab_code_normalized",
+        "autonomous_community_code": "predicted_autonomous_community_code",
+        "autonomous_community": "predicted_autonomous_community",
+        "institution": "predicted_institution",
+        "city": "predicted_city",
+        "submitter_lab_code": "predicted_submitter_lab_code",
+        "submitter_lab_name": "predicted_submitter_lab_name",
+    }
+
+    for field, predicted_field in prediction_fields.items():
+        updated[field] = (
+            updated[field]
+            .fillna(updated[predicted_field])
+        )
+
+    # Remove temporary prediction columns
+    updated = updated.drop(
+        columns=[
+            "predicted_identifier",
+            *prediction_fields.values(),
+        ]
+    )
+
+    # Final laboratory metadata columns
+    output_columns = [
+        "Accession ID",
+        "Virus name",
+        "identifier",
+        "originating_lab",
+        "lab_code",
+        "lab_code_normalized",
+        "autonomous_community_code",
+        "autonomous_community",
+        "institution",
+        "city",
+        "submitter_lab_code",
+        "submitter_lab_name",
+        "submitter_name",
+        "laboratory_comments",
+    ]
+
+    updated = updated[output_columns]
+
+    # --------------------------------------------------------------
+    # Build new records and manual review tables
+    # --------------------------------------------------------------
+
+    review_fields = [
+        "originating_lab",
+        "lab_code",
+        "lab_code_normalized",
+        "autonomous_community_code",
+        "autonomous_community",
+        "institution",
+        "city",
+        "submitter_lab_code",
+        "submitter_lab_name",
+    ]
+
+    new_accessions = set(
+        new["Accession ID"]
+    )
+
+    new_records = updated[
+        updated["Accession ID"].isin(new_accessions)
+    ].copy()
+
+    missing_review_fields = (
+        new_records[review_fields]
+        .fillna("")
+        .eq("")
+    )
+
+    # Describe which fields require manual review
+    new_records["review_fields"] = (
+        missing_review_fields
+        .apply(
+            lambda row: (
+                ";".join(
+                    field
+                    for field, missing in row.items()
+                    if missing
+                )
+                or "no_review"
+            ),
+            axis=1,
+        )
+    )
+
+    # Manual review is a subset of the new records
+    review = new_records[
+        new_records["review_fields"] != "no_review"
+    ].copy()
+
+    review_columns = [
+        "Accession ID",
+        "Virus name",
+        "identifier",
+        "originating_lab",
+        "lab_code",
+        "lab_code_normalized",
+        "autonomous_community_code",
+        "autonomous_community",
+        "institution",
+        "city",
+        "submitter_lab_code",
+        "submitter_lab_name",
+        "review_fields",
+    ]
+
+    new_records = new_records[review_columns]
+
+    review = review[review_columns]
+
+    # --------------------------------------------------------------
+    # Validate dataset integrity
+    # --------------------------------------------------------------
+
+    if len(updated) != len(metadata):
+        raise ValueError(
+            "Updated laboratory metadata does not contain "
+            "the same number of records as the input metadata."
+        )
+
+    if set(updated["Accession ID"]) != set(metadata["Accession ID"]):
+        raise ValueError(
+            "Updated laboratory metadata does not contain "
+            "the same accessions as the input metadata."
+        )
+
+    # --------------------------------------------------------------
+    # Validate preservation of historical metadata
+    # --------------------------------------------------------------
+
+    historical_fields = [
+        "originating_lab",
+        "lab_code",
+        "lab_code_normalized",
+        "autonomous_community_code",
+        "autonomous_community",
+        "institution",
+        "city",
+        "submitter_lab_code",
+        "submitter_lab_name",
+        "submitter_name",
+        "laboratory_comments",
+    ]
+
+    historical_check = updated[
+        updated["Accession ID"].isin(
+            reference["Accession ID"]
+        )
+    ][
+        ["Accession ID"] + historical_fields
+    ].merge(
+        reference[
+            ["Accession ID"] + historical_fields
+        ],
+        on="Accession ID",
+        suffixes=("_updated", "_reference"),
+    )
+
+    changed = pd.Series(
+        False,
+        index=historical_check.index,
+    )
+
+    for field in historical_fields:
+
+        updated_values = (
+            historical_check[f"{field}_updated"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+
+        reference_values = (
+            historical_check[f"{field}_reference"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+        )
+
+        changed |= (
+            updated_values != reference_values
+        )
+
+    historical_changed = changed.sum()
+
+    # --------------------------------------------------------------
+    # Validate dataset integrity
+    # --------------------------------------------------------------
+
+    if len(updated) != len(metadata):
+        raise ValueError(
+            "Updated laboratory metadata does not contain "
+            "the same number of records as the input metadata."
+        )
+
+    if set(updated["Accession ID"]) != set(metadata["Accession ID"]):
+        raise ValueError(
+            "Updated laboratory metadata does not contain "
+            "the same accessions as the input metadata."
+        )
+
+    # --------------------------------------------------------------
+    # Summary statistics
+    # --------------------------------------------------------------
+
+    resolved = (
+        new["predicted_lab_code"] != ""
+    ).sum()
+
+    unresolved = (
+        new["predicted_lab_code"] == ""
+    ).sum()
+
+    originating_resolved = (
+        new["predicted_originating_lab"] != ""
+    ).sum()
+
+    submitter_resolved = (
+        new["predicted_submitter_lab_code"] != ""
+    ).sum()
+
+    # --------------------------------------------------------------
+    # Report
+    # --------------------------------------------------------------
+
+    print("\nGenomeTableTools - Registry update")
+    print("=" * 50)
+
+    print("\nDataset")
+    print("-" * 50)
+    print(
+        f"Current metadata        : "
+        f"{len(metadata):>8,}"
+    )
+    print(
+        f"Reference records       : "
+        f"{len(reference):>8,}"
+    )
+    print(
+        f"Existing accessions     : "
+        f"{len(known):>8,}"
+    )
+    print(
+        f"New accessions          : "
+        f"{len(new):>8,}"
+    )
+    print(
+        f"Resolved                : "
+        f"{resolved:>8,}"
+    )
+    print(
+        f"Unresolved              : "
+        f"{unresolved:>8,}"
+    )
+
+    no_review_count = (
+        new_records["review_fields"]
+        .eq("no_review")
+        .sum()
+    )
+    
+    resolved_count = (
+        new["predicted_lab_code"] != ""
+    ).sum()
+
+    unresolved_count = (
+        new["predicted_lab_code"] == ""
+    ).sum()
+
+    no_review_count = (
+        new_records["review_fields"]
+        .eq("no_review")
+        .sum()
+    )
+
+    print("\nNew records")
+    print("-" * 50)
+    print(
+        f"Laboratory resolved     : "
+        f"{resolved_count:>8,}"
+    )
+    print(
+        f"Laboratory unresolved   : "
+        f"{unresolved_count:>8,}"
+    )
+    print(
+        f"No review required      : "
+        f"{no_review_count:>8,}"
+    )
+    print(
+        f"Manual review required  : "
+        f"{len(review):>8,}"
+    )
+
+    print("\nHistorical metadata resolution")
+    print("-" * 50)
+    print(
+        f"Originating lab  : "
+        f"{originating_resolved:>8,} / {len(new):,}"
+    )
+    print(
+        f"Submitter lab    : "
+        f"{submitter_resolved:>8,} / {len(new):,}"
+    )
+    print("\nLaboratory metadata fields")
+    print("-" * 50)
+
+    for field in [
+        "lab_code_normalized",
+        "autonomous_community_code",
+        "autonomous_community",
+        "institution",
+        "city",
+    ]:
+        resolved_field = (
+            new[f"predicted_{field}"] != ""
+        ).sum()
+
+        print(
+            f"{field:<28}: "
+            f"{resolved_field:>4} / {len(new)}"
+        )
+
+
+    submitter_name_resolved = (
+        new["predicted_submitter_lab_name"] != ""
+    ).sum()
+
+    print(
+        f"Submitter lab name: "
+        f"{submitter_name_resolved:>8,} / {len(new):,}"
+    )
+
+    for field in review_fields:
+
+        missing = (
+            review[field]
+            .fillna("")
+            .eq("")
+            .sum()
+        )
+
+        if missing:
+            print(
+                f"{field:<28}: "
+                f"{missing:>8,}"
+            )
+
+    # --------------------------------------------------------------
+    # Optional validation
+    # --------------------------------------------------------------
+
+    if validation_file:
+
+        validation = load_metadata(validation_file)
+
+        validation_subset = validation[
+            [
+                "Accession ID",
+                "lab_code",
+                "originating_lab",
+                "submitter_lab_code",
+            ]
+        ].copy()
+
+        validation_subset = validation_subset.rename(
+            columns={
+                "lab_code": "true_lab_code",
+                "originating_lab": "true_originating_lab",
+                "submitter_lab_code": "true_submitter_lab_code",
+            }
+        )
+
+        evaluated = new.merge(
+            validation_subset,
+            on="Accession ID",
+            how="inner",
+        )
+
+        # ----------------------------------------------------------
+        # Normalize validation fields
+        # ----------------------------------------------------------
+
+        evaluated["predicted_lab_code"] = (
+            evaluated["predicted_lab_code"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.upper()
+        )
+
+        evaluated["true_lab_code"] = (
+            evaluated["true_lab_code"]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.upper()
+        )
+
+        for column in [
+            "predicted_originating_lab",
+            "true_originating_lab",
+            "predicted_submitter_lab_code",
+            "true_submitter_lab_code",
+        ]:
+            evaluated[column] = (
+                evaluated[column]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+            )
+
+        # ----------------------------------------------------------
+        # Laboratory-code validation
+        # ----------------------------------------------------------
+
+        resolved_mask = (
+            evaluated["predicted_lab_code"] != ""
+        )
+
+        correct_mask = (
+            resolved_mask
+            & (
+                evaluated["predicted_lab_code"]
+                == evaluated["true_lab_code"]
+            )
+        )
+
+        incorrect_mask = (
+            resolved_mask
+            & (
+                evaluated["predicted_lab_code"]
+                != evaluated["true_lab_code"]
+            )
+        )
+
+        unresolved_mask = ~resolved_mask
+
+        correct = correct_mask.sum()
+        incorrect = incorrect_mask.sum()
+        validation_unresolved = unresolved_mask.sum()
+
+        resolved_total = correct + incorrect
+
+        accuracy = (
+            100 * correct / resolved_total
+            if resolved_total
+            else 0
+        )
+
+        # ----------------------------------------------------------
+        # Originating-laboratory validation
+        # ----------------------------------------------------------
+
+        originating_resolved_mask = (
+            evaluated["predicted_originating_lab"] != ""
+        )
+
+        originating_correct_mask = (
+            originating_resolved_mask
+            & (
+                evaluated["predicted_originating_lab"]
+                == evaluated["true_originating_lab"]
+            )
+        )
+
+        originating_incorrect_mask = (
+            originating_resolved_mask
+            & (
+                evaluated["predicted_originating_lab"]
+                != evaluated["true_originating_lab"]
+            )
+        )
+
+        originating_correct = (
+            originating_correct_mask.sum()
+        )
+
+        originating_incorrect = (
+            originating_incorrect_mask.sum()
+        )
+
+        originating_unresolved = (
+            ~originating_resolved_mask
+        ).sum()
+
+        # ----------------------------------------------------------
+        # Submitter-laboratory validation
+        # ----------------------------------------------------------
+
+        submitter_resolved_mask = (
+            evaluated["predicted_submitter_lab_code"] != ""
+        )
+
+        submitter_correct_mask = (
+            submitter_resolved_mask
+            & (
+                evaluated["predicted_submitter_lab_code"]
+                == evaluated["true_submitter_lab_code"]
+            )
+        )
+
+        submitter_incorrect_mask = (
+            submitter_resolved_mask
+            & (
+                evaluated["predicted_submitter_lab_code"]
+                != evaluated["true_submitter_lab_code"]
+            )
+        )
+
+        submitter_correct = (
+            submitter_correct_mask.sum()
+        )
+
+        submitter_incorrect = (
+            submitter_incorrect_mask.sum()
+        )
+
+        submitter_unresolved = (
+            ~submitter_resolved_mask
+        ).sum()
+
+        # ----------------------------------------------------------
+        # Validation report
+        # ----------------------------------------------------------
+
+        print("\nLaboratory validation")
+        print("-" * 50)
+
+        print(
+            f"Samples evaluated: {len(evaluated):>8,}"
+        )
+        print(
+            f"Correct          : {correct:>8,}"
+        )
+        print(
+            f"Incorrect        : {incorrect:>8,}"
+        )
+        print(
+            f"Unresolved       : "
+            f"{validation_unresolved:>8,}"
+        )
+        print(
+            f"Accuracy         : {accuracy:>7.2f}%"
+        )
+
+        print("\nOriginating laboratory validation")
+        print("-" * 50)
+
+        print(
+            f"Correct          : "
+            f"{originating_correct:>8,}"
+        )
+        print(
+            f"Incorrect        : "
+            f"{originating_incorrect:>8,}"
+        )
+        print(
+            f"Unresolved       : "
+            f"{originating_unresolved:>8,}"
+        )
+
+        print("\nSubmitter laboratory validation")
+        print("-" * 50)
+
+        print(
+            f"Correct          : "
+            f"{submitter_correct:>8,}"
+        )
+        print(
+            f"Incorrect        : "
+            f"{submitter_incorrect:>8,}"
+        )
+        print(
+            f"Unresolved       : "
+            f"{submitter_unresolved:>8,}"
+        )
+
+        # ----------------------------------------------------------
+        # Incorrect laboratory-code assignments
+        # ----------------------------------------------------------
+
+        if incorrect > 0:
+
+            errors = evaluated.loc[
+                incorrect_mask,
+                [
+                    "Accession ID",
+                    "Virus name",
+                    "identifier",
+                    "predicted_lab_code",
+                    "true_lab_code",
+                ],
+            ]
+
+            print(
+                "\nIncorrect laboratory assignments"
+            )
+            print("-" * 50)
+
+            print(
+                errors.to_string(
+                    index=False
+                )
+            )
+
+        # ----------------------------------------------------------
+        # Incorrect originating-laboratory assignments
+        # ----------------------------------------------------------
+
+        if originating_incorrect > 0:
+
+            originating_errors = evaluated.loc[
+                originating_incorrect_mask,
+                [
+                    "Accession ID",
+                    "Virus name",
+                    "identifier",
+                    "predicted_lab_code",
+                    "predicted_originating_lab",
+                    "true_originating_lab",
+                ],
+            ]
+
+            print(
+                "\nIncorrect originating laboratory assignments"
+            )
+            print("-" * 50)
+
+            print(
+                originating_errors.to_string(
+                    index=False
+                )
+            )
+
+        # ----------------------------------------------------------
+        # Incorrect submitter-laboratory assignments
+        # ----------------------------------------------------------
+
+        if submitter_incorrect > 0:
+
+            submitter_errors = evaluated.loc[
+                submitter_incorrect_mask,
+                [
+                    "Accession ID",
+                    "Virus name",
+                    "identifier",
+                    "predicted_lab_code",
+                    "predicted_submitter_lab_code",
+                    "true_submitter_lab_code",
+                ],
+            ]
+
+            print(
+                "\nIncorrect submitter laboratory assignments"
+            )
+            print("-" * 50)
+
+            print(
+                submitter_errors.to_string(
+                    index=False
+                )
+            )
+
+        # ----------------------------------------------------------
+        # Unresolved laboratory codes
+        # ----------------------------------------------------------
+
+        if validation_unresolved > 0:
+
+            unresolved_cases = evaluated.loc[
+                unresolved_mask,
+                [
+                    "Accession ID",
+                    "Virus name",
+                    "identifier",
+                    "predicted_lab_code",
+                    "true_lab_code",
+                ],
+            ]
+
+            print(
+                "\nUnresolved - manual review required"
+            )
+            print("-" * 50)
+
+            print(
+                unresolved_cases.to_string(
+                    index=False
+                )
+            )
+
+    print("=" * 50)
+
+    # --------------------------------------------------------------
+    # Write outputs
+    # --------------------------------------------------------------
+
+    if output_file:
+        updated.to_csv(
+            output_file,
+            sep="\t",
+            index=False,
+        )
+
+    if new_records_output_file:
+        new_records.to_csv(
+            new_records_output_file,
+            sep="\t",
+            index=False,
+        )
+
+    if review_output_file:
+        review.to_csv(
+            review_output_file,
+            sep="\t",
+            index=False,
+        )
+
+    if (
+        output_file
+        or new_records_output_file
+        or review_output_file
+    ):
+        print("\nOutput")
+        print("-" * 50)
+
+        if output_file:
+            print(
+                f"Laboratory metadata: "
+                f"{output_file}"
+            )
+
+        if new_records_output_file:
+            print(
+                f"New records        : "
+                f"{new_records_output_file}"
+            )
+
+        if review_output_file:
+            print(
+                f"Manual review      : "
+                f"{review_output_file}"
+            )
+
+    return updated

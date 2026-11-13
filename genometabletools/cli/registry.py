@@ -1,31 +1,24 @@
 from pathlib import Path
 
-from ..registry import (
-    registry_build,
-    registry_parse,
-)
+from ..registry import registry_update
 
-def run_build(args):
+def run_update(args):
 
-    registry_build(
+    registry_update(
         metadata_file=args.input,
-        registry_dir=Path(args.registry),
-    )
-
-
-def run_parse(args):
-
-    registry_parse(
-        metadata_file=args.input,
-        registry_dir=Path(args.registry),
+        reference_file=args.reference,
+        validation_file=args.validation,
         output_file=args.output,
+        review_output_file=args.review_output,
+        new_records_output_file=args.new_records_output,
     )
+
 
 def add_parser(subparsers):
 
     parser = subparsers.add_parser(
         "registry",
-        help="Registry management tools",
+        help="Laboratory metadata registry tools",
     )
 
     registry_subparsers = parser.add_subparsers(
@@ -34,49 +27,50 @@ def add_parser(subparsers):
     )
 
     ###########################################################################
-    # build
+    # update
     ###########################################################################
 
-    build = registry_subparsers.add_parser(
-        "build",
-        help="Build registry candidates",
+    update = registry_subparsers.add_parser(
+        "update",
+        help="Update laboratory metadata from new GISAID metadata",
     )
 
-    build.add_argument(
-        "input",
-        help="Input metadata TSV file",
+    update.add_argument(
+        "--input",
+        required=True,
+        help="Input GISAID sequencing metadata TSV file",
     )
 
-    build.add_argument(
-        "--registry",
-        default="registry",
-        help="Registry directory",
+    update.add_argument(
+        "--reference",
+        required=True,
+        help="Historical laboratory metadata TSV file",
     )
 
-    build.set_defaults(func=run_build)
-
-    ###########################################################################
-    # parse
-    ###########################################################################
-
-    parse = registry_subparsers.add_parser(
-        "parse",
-        help="Parse metadata using the registry",
+    update.add_argument(
+        "--validation",
+        help=(
+            "Optional curated laboratory metadata TSV "
+            "used to validate predictions"
+        ),
     )
 
-    parse.add_argument(
-        "input",
-        help="Input metadata TSV file",
-    )
-
-    parse.add_argument(
-        "-o",
+    update.add_argument(
         "--output",
+        required=True,
+        help="Output laboratory metadata TSV file",
     )
 
-    parse.add_argument(
-        "--registry",
-        default="registry",
+    update.add_argument(
+        "--review-output",
+        help="Optional TSV file for records requiring manual review",
     )
 
-    parse.set_defaults(func=run_parse)
+    update.add_argument(
+        "--new-records-output",
+        help="Optional TSV file containing records added in the current update",
+    )
+
+    update.set_defaults(
+        func=run_update
+    )

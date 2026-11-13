@@ -1,0 +1,7 @@
+Accession ID	Virus name	identifier	originating_lab	lab_code	lab_code_normalized	autonomous_community_code	autonomous_community	institution	city	submitter_lab_code	submitter_lab_name	review_fields
+EPI_ISL_99000031	hRSV/B/Spain/VC-LABA-0031/2025	VC-LABA-0031	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	no_review
+EPI_ISL_99000032	hRSV/B/Spain/MD-LABB-0032/2025	MD-LABB-0032	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	no_review
+EPI_ISL_99000033	hRSV/B/Spain/GA-LABC-0033/2025	GA-LABC-0033	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	no_review
+EPI_ISL_99000034	hRSV/B/Spain/GA-LABD-0034/2025	GA-LABD-0034	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	no_review
+EPI_ISL_99000035	hRSV/B/Spain/AN-LABE-0035/2025	AN-LABE-0035	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	no_review
+EPI_ISL_99000036	hRSV/B/Spain/CT-LABF-0036/2025	CT-LABF-0036	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	no_review

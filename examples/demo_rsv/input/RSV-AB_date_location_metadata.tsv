@@ -1,37 +1,37 @@
-Accession ID	Subtype	Collection date	Submission date	Location
-EPI_ISL_99000001	A	2025-10-01	2025-10-05	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000002	A	2025-10-02	2025-10-06	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000003	A	2025-10-03	2025-10-07	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000004	A	2025-10-04	2025-10-08	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000005	A	2025-10-05	2025-10-09	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000006	A	2025-10-06	2025-10-10	Europe / Spain / Cataluña / Barcelona
-EPI_ISL_99000007	A	2025-10-07	2025-10-11	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000008	A	2025-10-08	2025-10-12	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000009	A	2025-10-09	2025-10-13	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000010	A	2025-10-10	2025-10-14	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000011	A	2025-10-11	2025-10-15	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000012	A	2025-10-12	2025-10-16	Europe / Spain / Cataluña / Barcelona
-EPI_ISL_99000013	A	2025-11-13	2025-11-17	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000014	A	2025-11-14	2025-11-18	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000015	A	2025-11-15	2025-11-19	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000016	A	2025-11-16	2025-11-20	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000017	A	2025-11-17	2025-11-21	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000018	A	2025-11-18	2025-11-22	Europe / Spain / Cataluña / Barcelona
-EPI_ISL_99000019	B	2025-11-19	2025-11-23	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000020	B	2025-11-20	2025-11-24	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000021	B	2025-11-21	2025-11-25	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000022	B	2025-11-22	2025-11-26	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000023	B	2025-11-23	2025-11-27	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000024	B	2025-11-24	2025-11-28	Europe / Spain / Cataluña / Barcelona
-EPI_ISL_99000025	B	2025-12-25	2025-12-28	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000026	B	2025-12-26	2025-12-28	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000027	B	2025-12-27	2025-12-28	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000028	B	2025-12-28	2025-12-28	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000029	B	2025-12-01	2025-12-05	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000030	B	2025-12-02	2025-12-06	Europe / Spain / Cataluña / Barcelona
-EPI_ISL_99000031	B	2025-12-03	2025-12-07	Europe / Spain / Comunitat Valenciana / Valencia
-EPI_ISL_99000032	B	2025-12-04	2025-12-08	Europe / Spain / Madrid / Madrid
-EPI_ISL_99000033	B	2025-12-05	2025-12-09	Europe / Spain / Galicia / Santiago de Compostela
-EPI_ISL_99000034	B	2025-12-06	2025-12-10	Europe / Spain / Galicia / Vigo
-EPI_ISL_99000035	B	2025-12-07	2025-12-11	Europe / Spain / Andalucía / Sevilla
-EPI_ISL_99000036	B	2025-12-08	2025-12-12	Europe / Spain / Cataluña / Barcelona
+Accession ID	Subtype	Collection date	Submission date	Country	Autonomous community	Province	City
+EPI_ISL_99000001	A	2025-10-01	2025-10-05	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000002	A	2025-10-02	2025-10-06	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000003	A	2025-10-03	2025-10-07	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000004	A	2025-10-04	2025-10-08	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000005	A	2025-10-05	2025-10-09	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000006	A	2025-10-06	2025-10-10	Spain	Cataluña	Barcelona	Barcelona
+EPI_ISL_99000007	A	2025-10-07	2025-10-11	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000008	A	2025-10-08	2025-10-12	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000009	A	2025-10-09	2025-10-13	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000010	A	2025-10-10	2025-10-14	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000011	A	2025-10-11	2025-10-15	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000012	A	2025-10-12	2025-10-16	Spain	Cataluña	Barcelona	Barcelona
+EPI_ISL_99000013	A	2025-11-13	2025-11-17	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000014	A	2025-11-14	2025-11-18	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000015	A	2025-11-15	2025-11-19	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000016	A	2025-11-16	2025-11-20	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000017	A	2025-11-17	2025-11-21	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000018	A	2025-11-18	2025-11-22	Spain	Cataluña	Barcelona	Barcelona
+EPI_ISL_99000019	B	2025-11-19	2025-11-23	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000020	B	2025-11-20	2025-11-24	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000021	B	2025-11-21	2025-11-25	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000022	B	2025-11-22	2025-11-26	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000023	B	2025-11-23	2025-11-27	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000024	B	2025-11-24	2025-11-28	Spain	Cataluña	Barcelona	Barcelona
+EPI_ISL_99000025	B	2025-12-25	2025-12-28	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000026	B	2025-12-26	2025-12-28	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000027	B	2025-12-27	2025-12-28	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000028	B	2025-12-28	2025-12-28	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000029	B	2025-12-01	2025-12-05	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000030	B	2025-12-02	2025-12-06	Spain	Cataluña	Barcelona	Barcelona
+EPI_ISL_99000031	B	2025-12-03	2025-12-07	Spain	Comunitat Valenciana	Valencia	Valencia
+EPI_ISL_99000032	B	2025-12-04	2025-12-08	Spain	Madrid	Madrid	Madrid
+EPI_ISL_99000033	B	2025-12-05	2025-12-09	Spain	Galicia	A Coruña	Santiago de Compostela
+EPI_ISL_99000034	B	2025-12-06	2025-12-10	Spain	Galicia	Pontevedra	Vigo
+EPI_ISL_99000035	B	2025-12-07	2025-12-11	Spain	Andalucía	Sevilla	Sevilla
+EPI_ISL_99000036	B	2025-12-08	2025-12-12	Spain	Cataluña	Barcelona	Barcelona

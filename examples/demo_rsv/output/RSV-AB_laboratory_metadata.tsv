@@ -1,0 +1,37 @@
+Accession ID	Virus name	identifier	originating_lab	lab_code	lab_code_normalized	autonomous_community_code	autonomous_community	institution	city	submitter_lab_code	submitter_lab_name	submitter_name	laboratory_comments
+EPI_ISL_99000001	hRSV/A/Spain/VC-LABA-0001/2025	VC-LABA-0001	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	Demo Submitter A	Fictitious demo record
+EPI_ISL_99000002	hRSV/A/Spain/MD-LABB-0002/2025	MD-LABB-0002	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	Demo Submitter B	Fictitious demo record
+EPI_ISL_99000003	hRSV/A/Spain/GA-LABC-0003/2025	GA-LABC-0003	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	Demo Submitter C	Fictitious demo record
+EPI_ISL_99000004	hRSV/A/Spain/GA-LABD-0004/2025	GA-LABD-0004	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	Demo Submitter D	Fictitious demo record
+EPI_ISL_99000005	hRSV/A/Spain/AN-LABE-0005/2025	AN-LABE-0005	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	Demo Submitter E	Fictitious demo record
+EPI_ISL_99000006	hRSV/A/Spain/CT-LABF-0006/2025	CT-LABF-0006	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	Demo Submitter F	Fictitious demo record
+EPI_ISL_99000007	hRSV/A/Spain/VC-LABA-0007/2025	VC-LABA-0007	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	Demo Submitter A	Fictitious demo record
+EPI_ISL_99000008	hRSV/A/Spain/MD-LABB-0008/2025	MD-LABB-0008	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	Demo Submitter B	Fictitious demo record
+EPI_ISL_99000009	hRSV/A/Spain/GA-LABC-0009/2025	GA-LABC-0009	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	Demo Submitter C	Fictitious demo record
+EPI_ISL_99000010	hRSV/A/Spain/GA-LABD-0010/2025	GA-LABD-0010	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	Demo Submitter D	Fictitious demo record
+EPI_ISL_99000011	hRSV/A/Spain/AN-LABE-0011/2025	AN-LABE-0011	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	Demo Submitter E	Fictitious demo record
+EPI_ISL_99000012	hRSV/A/Spain/CT-LABF-0012/2025	CT-LABF-0012	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	Demo Submitter F	Fictitious demo record
+EPI_ISL_99000013	hRSV/A/Spain/VC-LABA-0013/2025	VC-LABA-0013	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	Demo Submitter A	Fictitious demo record
+EPI_ISL_99000014	hRSV/A/Spain/MD-LABB-0014/2025	MD-LABB-0014	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	Demo Submitter B	Fictitious demo record
+EPI_ISL_99000015	hRSV/A/Spain/GA-LABC-0015/2025	GA-LABC-0015	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	Demo Submitter C	Fictitious demo record
+EPI_ISL_99000016	hRSV/A/Spain/GA-LABD-0016/2025	GA-LABD-0016	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	Demo Submitter D	Fictitious demo record
+EPI_ISL_99000017	hRSV/A/Spain/AN-LABE-0017/2025	AN-LABE-0017	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	Demo Submitter E	Fictitious demo record
+EPI_ISL_99000018	hRSV/A/Spain/CT-LABF-0018/2025	CT-LABF-0018	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	Demo Submitter F	Fictitious demo record
+EPI_ISL_99000019	hRSV/B/Spain/VC-LABA-0019/2025	VC-LABA-0019	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	Demo Submitter A	Fictitious demo record
+EPI_ISL_99000020	hRSV/B/Spain/MD-LABB-0020/2025	MD-LABB-0020	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	Demo Submitter B	Fictitious demo record
+EPI_ISL_99000021	hRSV/B/Spain/GA-LABC-0021/2025	GA-LABC-0021	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	Demo Submitter C	Fictitious demo record
+EPI_ISL_99000022	hRSV/B/Spain/GA-LABD-0022/2025	GA-LABD-0022	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	Demo Submitter D	Fictitious demo record
+EPI_ISL_99000023	hRSV/B/Spain/AN-LABE-0023/2025	AN-LABE-0023	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	Demo Submitter E	Fictitious demo record
+EPI_ISL_99000024	hRSV/B/Spain/CT-LABF-0024/2025	CT-LABF-0024	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	Demo Submitter F	Fictitious demo record
+EPI_ISL_99000025	hRSV/B/Spain/VC-LABA-0025/2025	VC-LABA-0025	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A	Demo Submitter A	Fictitious demo record
+EPI_ISL_99000026	hRSV/B/Spain/MD-LABB-0026/2025	MD-LABB-0026	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B	Demo Submitter B	Fictitious demo record
+EPI_ISL_99000027	hRSV/B/Spain/GA-LABC-0027/2025	GA-LABC-0027	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C	Demo Submitter C	Fictitious demo record
+EPI_ISL_99000028	hRSV/B/Spain/GA-LABD-0028/2025	GA-LABD-0028	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D	Demo Submitter D	Fictitious demo record
+EPI_ISL_99000029	hRSV/B/Spain/AN-LABE-0029/2025	AN-LABE-0029	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E	Demo Submitter E	Fictitious demo record
+EPI_ISL_99000030	hRSV/B/Spain/CT-LABF-0030/2025	CT-LABF-0030	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F	Demo Submitter F	Fictitious demo record
+EPI_ISL_99000031	hRSV/B/Spain/VC-LABA-0031/2025	VC-LABA-0031	Demo Laboratory A	LABA	LABA	CV	Comunitat Valenciana	Demo Laboratory A	Valencia	LABA	Demo Laboratory A		
+EPI_ISL_99000032	hRSV/B/Spain/MD-LABB-0032/2025	MD-LABB-0032	Demo Laboratory B	LABB	LABB	MD	Madrid	Demo Laboratory B	Madrid	LABB	Demo Laboratory B		
+EPI_ISL_99000033	hRSV/B/Spain/GA-LABC-0033/2025	GA-LABC-0033	Demo Laboratory C	LABC	LABC	GA	Galicia	Demo Laboratory C	Santiago de Compostela	LABC	Demo Laboratory C		
+EPI_ISL_99000034	hRSV/B/Spain/GA-LABD-0034/2025	GA-LABD-0034	Demo Laboratory D	LABD	LABD	GA	Galicia	Demo Laboratory D	Vigo	LABD	Demo Laboratory D		
+EPI_ISL_99000035	hRSV/B/Spain/AN-LABE-0035/2025	AN-LABE-0035	Demo Laboratory E	LABE	LABE	AN	Andalucía	Demo Laboratory E	Sevilla	LABE	Demo Laboratory E		
+EPI_ISL_99000036	hRSV/B/Spain/CT-LABF-0036/2025	CT-LABF-0036	Demo Laboratory F	LABF	LABF	CT	Cataluña	Demo Laboratory F	Barcelona	LABF	Demo Laboratory F		

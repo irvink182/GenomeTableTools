@@ -14,9 +14,9 @@ GenomeTableTools provides a collection of modules for common tabular data manage
 | `filter`    | Filter rows using query expressions.                  |
 | `search`    | Search one or more columns for specific values or identifiers.           |
 | `annotate`  | Add metadata from a reference table.            |
-| `registry`* | Build and manage laboratory registries from GISAID metadata.  |
+| `registry`* |  Update curated laboratory metadata using newly downloaded GISAID metadata.  |
 
-*The `registry` module is specific to GISAID workflows. It generates and manages laboratory metadata (originating laboratories, submitters, and laboratory codes) from downloadable GISAID metadata.*
+*The `registry` module is specific to GISAID workflows. It updates curated laboratory metadata by combining newly downloaded GISAID sequencing metadata with an existing laboratory metadata reference. Known records are preserved, while new records are resolved using historical laboratory information and conservative parsing of GISAID virus names.*
 
 ## Supported tabular formats
 | Format | Read | Write |
@@ -43,37 +43,46 @@ Verify the installation:
 genometabletools --help
 ```
 
-## Workflow (GISAID METADATA)
+## GISAID METADATA workflow
 
 ```text
-    GenomeTableTools Workflow
-
-        Sequencing metadata
-        Patient metadata
-        Date/location metadata
-                 │
-                 ▼
-         registry build
-                 │
-                 ▼
-         registry parse
-                 │
-                 ▼
+     GISAID sequencing metadata
+                +
      laboratory_metadata.tsv
-                 │
-                 ▼
-            integrate
-                 │
-                 ▼
-        RSV-AB_master.tsv
-          ├──────────────┐
-          ▼              ▼
-       filter         search
-          │              │
-          └──────┬───────┘
-                 ▼
-             annotate
+       (curated reference)
+                │
+                ▼
+         registry update
+                │
+       ┌────────┼────────┐
+       ▼        ▼        ▼
+ laboratory_  registry_  registry_
+ metadata.tsv new_records.tsv review.tsv
+       │
+       ▼
+    integrate
+       │
+       ▼
+   master table
+    ├──────────────┐
+    ▼              ▼
+ filter          search
+    │              │
+    └──────┬───────┘
+           ▼
+        annotate
 ```
+
+The `registry update` workflow uses the existing curated laboratory metadata as a historical reference to resolve laboratory information for newly added GISAID records.
+
+It generates three complementary outputs:
+
+- `laboratory_metadata.tsv`: complete laboratory metadata table containing both existing and newly added records.
+- `registry_new_records.tsv`: all records added during the current update, including a `review_fields` column indicating whether manual review is required.
+- `registry_review.tsv`: subset of new records containing laboratory metadata fields that could not be resolved unambiguously and require manual curation.
+
+Existing accessions retain their curated laboratory metadata. For new accessions, laboratory information is inferred only when supported by the historical reference and the structure of the GISAID virus name. Ambiguous or unresolved metadata are left for manual review rather than assigned automatically.
+
 ## Features
 
 - Read and write TSV, CSV, TXT and Excel tables.
@@ -82,7 +91,7 @@ genometabletools --help
 - Filter rows using flexible text and numeric expressions.
 - Search one or more columns for specific values or identifiers.
 - Annotate tables using reference metadata.
-- Build and manage laboratory registries for GISAID workflows.
+- Update and curate laboratory metadata for GISAID workflows using historical laboratory information.
 
 ## Python API
 
@@ -100,16 +109,39 @@ filtered = table.filter(
 
 filtered.save("RSV-A.tsv")
 ```
+
 ## Quick start
 
-### 1. Concatenate tables with the same headers
+### 1. Update laboratory metadata from new GISAID records
+
+```bash
+genometabletools registry update \
+    --input sequencing_metadata.tsv \
+    --reference laboratory_metadata.tsv \
+    --output laboratory_metadata_updated.tsv \
+    --new-records-output registry_new_records.tsv \
+    --review-output registry_review.tsv
+```
+For development or validation purposes, a curated metadata table can optionally be provided using `--validation`:
+
+```bash
+genometabletools registry update \
+    --input sequencing_metadata.tsv \
+    --reference laboratory_metadata_previous.tsv \
+    --validation laboratory_metadata_curated.tsv \
+    --output laboratory_metadata_updated.tsv \
+    --new-records-output registry_new_records.tsv \
+    --review-output registry_review.tsv
+```
+
+### 2. Concatenate tables with the same headers
 ```bash
 genometabletools concat \
     Table1.tsv \
     Table2.tsv \
-	--output concatenated_table.tsv
+    --output concatenated_table.tsv
 ```
-### 2. Search records by "column_name" using a list of records (one record per line)
+### 3. Search records by "column_name" using a list of records (one record per line)
 
 ```bash
 genometabletools search \
@@ -119,7 +151,7 @@ genometabletools search \
     --output table_search
 ```
 
-### 3. Filter RSV-B with >90% genome coverage, and illumina-sequenced records
+### 4. Filter RSV-B with >90% genome coverage, and illumina-sequenced records
 ```bash
 genometabletools filter \
     concatenated_table.tsv \
@@ -129,7 +161,7 @@ genometabletools filter \
     --output filtered_table.tsv
 ```
 
-### 4. Filter RSV-A after 2018, only Galicia and Comunitat Valenciana, and no duplicated records
+### 5. Filter RSV-A after 2018, only Galicia and Comunitat Valenciana, and no duplicated records
 ```bash
 genometabletools filter \
     concatenated_table.tsv \
@@ -140,12 +172,12 @@ genometabletools filter \
     --output filtered_table.tsv
 ```
 
-*Additional `filter` operators include:* `contains`, `notcontains`, `startswith`, `notstartswith`, `endswith`, `notendswith`, `regex`, `notregex`, `isna`, `notna`, `before`, `after`, `between`, `in` `>`, `<`, `>=`, `<=`, `=` and `!=`.
+*Additional `filter` operators include:* `contains`, `notcontains`, `startswith`, `notstartswith`, `endswith`, `notendswith`, `regex`, `notregex`, `isna`, `notna`, `before`, `after`, `between`, `in`, `>`, `<`, `>=`, `<=`, `=` and `!=`.
 
 
 ## Examples
 
-A complete demonstration dataset is available in:
+A complete fictitious demonstration dataset is available in:
 
 ```text
 examples/demo_rsv/
